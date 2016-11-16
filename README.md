@@ -1,57 +1,23 @@
 # JFoenix
 
-[![Circle CI](https://img.shields.io/circleci/project/jfoenixadmin/JFoenix/master.svg?style=flat-square)](https://circleci.com/gh/jfoenixadmin/JFoenix/tree/master)
-
-* JavaFX Material Design Library [download jar](http://www.jfoenix.com/download/jfoenix.jar)
-* JFoenix android build [download](http://www.jfoenix.com/download/jfoenix-0.0.0-SNAPSHOT-retrolambda.jar)
+* JavaFX Material Design Library
 * [JFoenix Site](http://www.jfoenix.com)
+* OSGi version (bundle, maven)
+* Android textfield removed
+
 
 # Summary
 JFoenix is an open source Java library, that implements Google Material Design using Java components.
 
 # Build
-## Ant
-To build JFoenix, we created an Ant file named build.xml and build.bat. JFoenix uses Java version **1.8 u60**. Using the command line, you need to move to the JFoenix/make directory
-and run the batch file build.bat by typing:
+To build JFoenix with OSGi support just use maven
 
-    build.bat
-
-To run the main demo, go to the JFoenix/make directory and run the batch file run-demo.bat :
-
-    run-demo.bat
-
-**NOTE** : You need to update the build.bat to point to Java 1.8 and Apache Ant directories.
-
-**NOTE** : Linux is also supported. In the make directory, use `./build.sh` and `./run-demo.sh`, respectively.
-
-## Gradle
-To build JFoenix, execute the following command:
-
-    gradlew build
-
-To run the main demo, execute the following command:
-
-    gradlew run
-    
-**NOTE** : You need to set JAVA_HOME environment variable to point to Java 1.8 directory.
+    mvn clean package
 
 **NOTE** : JFoenix requires **Java 1.8 u60** and above.
 
 # How Can I Use JFoenix?
- You can download the source code of the library and build it as mentioned previously. Building JFoenix will generate jfoenix.jar under the build/dist folder. To use JFoenix, import jfoenix.jar into your project and start using the new material design Java components :).
- 
-## Gradle
-### How to Include In Gradle Project
-
-    repositories {
-        mavenCentral()
-    }
-
-Reference the repository from this location using:
-
-    dependencies {
-      compile 'com.jfoenix:jfoenix:1.0.0'
-    }
+ You can download the source code of the library and build it as mentioned previously. Building JFoenix will generate jfoenix-*.jar under the target folder. To use JFoenix, import JFoenix into to your plugin as a dependency.
 
 # Pics
 
