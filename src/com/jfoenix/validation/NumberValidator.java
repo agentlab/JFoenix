@@ -18,15 +18,14 @@
  */
 package com.jfoenix.validation;
 
+import com.jfoenix.validation.base.ValidatorBase;
 import javafx.beans.DefaultProperty;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 
-import com.jfoenix.validation.base.ValidatorBase;
-
 /**
- * An example of Number field validtaion, that is applied on text input controls
+ * An example of Number field validation, that is applied on text input controls
  * such as {@link TextField} and {@link TextArea}
  * 
  * @author  Shadi Shaheen

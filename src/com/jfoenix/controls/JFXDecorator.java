@@ -18,42 +18,19 @@
  */
 package com.jfoenix.controls;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jfoenix.svg.SVGGlyph;
-
-import javafx.animation.Animation;
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.BoundingBox;
-import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
+import javafx.geometry.*;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
@@ -61,11 +38,14 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Window Decorator allow to resize/move its content
- * Note: the default close button will call Platform.exit() which will close the 
- * java application, however it can be customized by calling {@link #setOnCloseButtonAction(Runnable)} 
+ * Note: the default close button will call stage.close() which will only close the current stage. 
+ * it will not close the java application, however it can be customized by calling {@link #setOnCloseButtonAction(Runnable)} 
  * 
  * @author  Shadi Shaheen
  * @version 1.0
@@ -87,7 +67,7 @@ public class JFXDecorator extends VBox {
 	private Timeline windowDecoratorAnimation;
 	private StackPane contentPlaceHolder = new StackPane();
 	private HBox buttonsContainer;
-	private ObjectProperty<Runnable> onCloseButtonAction = new SimpleObjectProperty<>(()->{Platform.exit();});
+	private ObjectProperty<Runnable> onCloseButtonAction = new SimpleObjectProperty<>(()->{primaryStage.close();});
 
 	private BooleanProperty customMaximize = new SimpleBooleanProperty(false);
 	private boolean maximized = false;
@@ -293,35 +273,6 @@ public class JFXDecorator extends VBox {
 			}
 		});	
 
-
-
-		//		primaryStage.maximizedProperty().addListener((o,oldVal,newVal)->{
-		//			if(newVal){
-		//				resizeBorder = this.getBorder();
-		//				this.setBorder(Border.EMPTY);				
-		//			}else{
-		//				this.setBorder(resizeBorder);
-		//			}
-		//		});		
-		//		this.setPadding(new Insets(0,0,0,0));
-
-		// clip the node in case it has hidden child nodes outside it's bounds (e.g drawer pane)
-		//		Rectangle clip = new Rectangle();
-		//		clip.widthProperty().bind(Bindings.createDoubleBinding(()->((Region)node).getWidth(), ((Region)node).widthProperty()));
-		//		clip.heightProperty().bind(Bindings.createDoubleBinding(()->((Region)node).getHeight(), ((Region)node).heightProperty()));
-		//		node.setClip(clip);
-		//		node.getStyleClass().add("jfx-decorator-content");
-		//		node.setStyle("-fx-border-color:RED;");
-
-		// save the mouse pressed position when clicking on the decorator pane
-		this.addEventFilter(MouseEvent.MOUSE_PRESSED, (mouseEvent) -> {
-			initX = mouseEvent.getScreenX();
-			initY = mouseEvent.getScreenY();
-			xOffset = mouseEvent.getSceneX();
-			yOffset = mouseEvent.getSceneY();
-		});
-
-
 		// show the drag cursor on the borders
 		this.setOnMouseMoved((mouseEvent)->{
 			if (primaryStage.isMaximized() || primaryStage.isFullScreen() || maximized) {
@@ -358,7 +309,8 @@ public class JFXDecorator extends VBox {
 					this.setCursor(Cursor.S_RESIZE);
 				} else {
 					this.setCursor(Cursor.DEFAULT);
-				}	
+				}
+				updateInitMouseValues(mouseEvent);
 			}
 		});
 
@@ -431,6 +383,13 @@ public class JFXDecorator extends VBox {
 				mouseEvent.consume();
 			}
 		});
+	}
+
+	private void updateInitMouseValues(MouseEvent mouseEvent) {
+		initX = mouseEvent.getScreenX();
+		initY = mouseEvent.getScreenY();
+		xOffset = mouseEvent.getSceneX();
+		yOffset = mouseEvent.getSceneY();
 	}
 
 

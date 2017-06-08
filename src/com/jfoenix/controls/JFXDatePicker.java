@@ -18,25 +18,12 @@
  */
 package com.jfoenix.controls;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.jfoenix.skins.JFXDatePickerSkin;
 import com.sun.javafx.css.converters.BooleanConverter;
 import com.sun.javafx.css.converters.PaintConverter;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.css.CssMetaData;
-import javafx.css.SimpleStyleableBooleanProperty;
-import javafx.css.SimpleStyleableObjectProperty;
-import javafx.css.Styleable;
-import javafx.css.StyleableBooleanProperty;
-import javafx.css.StyleableObjectProperty;
-import javafx.css.StyleableProperty;
+import javafx.css.*;
 import javafx.geometry.Insets;
 import javafx.scene.control.Control;
 import javafx.scene.control.DatePicker;
@@ -47,6 +34,11 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * JFXDatePicker is the material design implementation of a date picker. 
@@ -106,34 +98,6 @@ public class JFXDatePicker extends DatePicker {
 		this.dialogParentProperty().set(dialogParent);
 	}
 
-	/**
-	 * property that holds the time value if showing the time picker
-	 */
-    private ObjectProperty<LocalTime> lastValidTime = new SimpleObjectProperty<>();
-    
-	public final ObjectProperty<LocalTime> timeProperty() {
-		return this.lastValidTime;
-	}
-	public final java.time.LocalTime getTime() {
-		return this.timeProperty().get();
-	}
-	public final void setTime(final java.time.LocalTime lastValidTime) {
-		this.timeProperty().set(lastValidTime);
-	}
-
-	private boolean showTime = false;
-    
-	public boolean isShowTime() {
-		return showTime;
-	}
-
-	/**
-	 * indicates whether to pick time or date 
-	 */
-	public void setShowTime(boolean showTime) {
-		this.showTime = showTime;
-	}
-
 	/***************************************************************************
 	 *                                                                         *
 	 * Stylesheet Handling                                                     *
@@ -182,7 +146,7 @@ public class JFXDatePicker extends DatePicker {
     
 	private static class StyleableProperties {
 		private static final CssMetaData< JFXDatePicker, Paint> DEFAULT_COLOR =
-				new CssMetaData< JFXDatePicker, Paint>("-fx-default-color",
+				new CssMetaData< JFXDatePicker, Paint>("-jfx-default-color",
 						PaintConverter.getInstance(), Color.valueOf("#5A5A5A")) {
 			@Override
 			public boolean isSettable(JFXDatePicker control) {
@@ -195,7 +159,7 @@ public class JFXDatePicker extends DatePicker {
 		};
 
 		private static final CssMetaData< JFXDatePicker, Boolean> OVERLAY =
-				new CssMetaData< JFXDatePicker, Boolean>("-fx-overlay",
+				new CssMetaData< JFXDatePicker, Boolean>("-jfx-overlay",
 						BooleanConverter.getInstance(), false) {
 			@Override
 			public boolean isSettable(JFXDatePicker control) {

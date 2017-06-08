@@ -18,22 +18,17 @@
  */
 package com.jfoenix.controls;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.jfoenix.skins.JFXRadioButtonSkin;
 import com.sun.javafx.css.converters.ColorConverter;
-
-import javafx.css.CssMetaData;
-import javafx.css.SimpleStyleableObjectProperty;
-import javafx.css.Styleable;
-import javafx.css.StyleableObjectProperty;
-import javafx.css.StyleableProperty;
+import javafx.css.*;
 import javafx.scene.control.Control;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Skin;
 import javafx.scene.paint.Color;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * JFXRadioButton is the material design implementation of a radio button. 
@@ -121,7 +116,7 @@ public class JFXRadioButton extends RadioButton {
 
 	private static class StyleableProperties {
 		private static final CssMetaData< JFXRadioButton, Color> SELECTED_COLOR =
-				new CssMetaData< JFXRadioButton, Color>("-fx-selected-color",
+				new CssMetaData< JFXRadioButton, Color>("-jfx-selected-color",
 						ColorConverter.getInstance(), Color.valueOf("#0F9D58")) {
 			@Override
 			public boolean isSettable(JFXRadioButton control) {
@@ -133,7 +128,7 @@ public class JFXRadioButton extends RadioButton {
 			}
 		};
 		private static final CssMetaData< JFXRadioButton, Color> UNSELECTED_COLOR =
-				new CssMetaData< JFXRadioButton, Color>("-fx-unselected-color",
+				new CssMetaData< JFXRadioButton, Color>("-jfx-unselected-color",
 						ColorConverter.getInstance(), Color.valueOf("#5A5A5A")) {
 			@Override
 			public boolean isSettable(JFXRadioButton control) {

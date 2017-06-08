@@ -25,12 +25,7 @@ import com.jfoenix.effects.JFXDepthManager;
 import com.jfoenix.transitions.CachedTransition;
 import com.sun.javafx.scene.control.skin.ButtonSkin;
 import com.sun.javafx.scene.control.skin.LabeledText;
-
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.animation.Transition;
+import javafx.animation.*;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -58,7 +53,7 @@ public class JFXButtonSkin extends ButtonSkin {
 	private final CornerRadii defaultRadii = new CornerRadii(3);
 	
 	private boolean invalid = true;
-
+	private Runnable releaseManualRippler = null;
 	public JFXButtonSkin(JFXButton button) {
 		super(button);
 
@@ -68,18 +63,37 @@ public class JFXButtonSkin extends ButtonSkin {
 				mask.shapeProperty().bind(buttonContainer.shapeProperty());				
 				mask.backgroundProperty().bind(Bindings.createObjectBinding(()->{					
 					return new Background(new BackgroundFill(Color.WHITE, 
-							buttonContainer.backgroundProperty().get()!=null?buttonContainer.getBackground().getFills().get(0).getRadii() : defaultRadii,
-							buttonContainer.backgroundProperty().get()!=null?buttonContainer.getBackground().getFills().get(0).getInsets() : Insets.EMPTY));
+							buttonContainer.backgroundProperty().get()!=null && buttonContainer.getBackground().getFills().size() > 0 ?buttonContainer.getBackground().getFills().get(0).getRadii() : defaultRadii,
+							buttonContainer.backgroundProperty().get()!=null && buttonContainer.getBackground().getFills().size() > 0 ?buttonContainer.getBackground().getFills().get(0).getInsets() : Insets.EMPTY));
 				}, buttonContainer.backgroundProperty()));				
-				mask.resize(buttonContainer.getWidth(), buttonContainer.getHeight());
+				mask.resize(buttonContainer.getWidth()-buttonContainer.snappedRightInset()-buttonContainer.snappedLeftInset(), buttonContainer.getHeight()-buttonContainer.snappedBottomInset()-buttonContainer.snappedTopInset());
 				return mask;
 			}
 			@Override protected void initListeners(){
 				ripplerPane.setOnMousePressed((event) -> {
+					if(releaseManualRippler!=null) releaseManualRippler.run();
+					releaseManualRippler = null;
 					createRipple(event.getX(),event.getY());
 				});
 			}
 		};
+		
+		getSkinnable().armedProperty().addListener((o,oldVal,newVal)->{
+			if(newVal){
+				releaseManualRippler = buttonRippler.createManualRipple();
+				if(clickedAnimation!=null){
+					clickedAnimation.setRate(1);
+					clickedAnimation.play();	
+				}
+			}else{
+				if(releaseManualRippler!=null) releaseManualRippler.run();
+				if(clickedAnimation!=null){
+					clickedAnimation.setRate(-1);
+					clickedAnimation.play();	
+				}
+			}
+		});
+		
 		buttonContainer.getChildren().add(buttonRippler);
 
 
@@ -98,6 +112,14 @@ public class JFXButtonSkin extends ButtonSkin {
 			}
 		});
 		
+		// show focused state
+		button.focusedProperty().addListener((o,oldVal,newVal)->{
+			if(newVal){
+				if(!getSkinnable().isPressed()) buttonRippler.showOverlay();
+			}else buttonRippler.hideOverlay();
+		});
+		button.pressedProperty().addListener((o,oldVal,newVal)-> buttonRippler.hideOverlay());
+		
 		/*
 		 * disable action when clicking on the button shadow 
 		 */
@@ -109,16 +131,19 @@ public class JFXButtonSkin extends ButtonSkin {
 			// reset button background to transparent if its set to java default values
 			if(button.getBackground() == null || isJavaDefaultBackground(button.getBackground()) || isJavaDefaultClickedBackground(button.getBackground()) )
 				button.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, defaultRadii, null)));
-
-			//Insets always Empty
-			if(getSkinnable().getBackground()!=null && getSkinnable().getBackground().getFills().get(0).getInsets().equals(new Insets(-0.2,-0.2, -0.2,-0.2))){
-				return new Background(new BackgroundFill(getSkinnable().getBackground()!=null?getSkinnable().getBackground().getFills().get(0).getFill() : Color.TRANSPARENT, 
-						getSkinnable().backgroundProperty().get()!=null?getSkinnable().getBackground().getFills().get(0).getRadii() : defaultRadii,
-						Insets.EMPTY/*new Insets(0,0,-1.0,0)*/));
-			}else{
-				return new Background(new BackgroundFill(getSkinnable().getBackground()!=null?getSkinnable().getBackground().getFills().get(0).getFill() : Color.TRANSPARENT, 
-						getSkinnable().getBackground()!=null?getSkinnable().getBackground().getFills().get(0).getRadii() : defaultRadii,
-						Insets.EMPTY/*getSkinnable().backgroundProperty().get()!=null?getSkinnable().getBackground().getFills().get(0).getInsets() : Insets.EMPTY*/));	
+			try{
+				//Insets always Empty
+				if(getSkinnable().getBackground()!=null && getSkinnable().getBackground().getFills().get(0).getInsets().equals(new Insets(-0.2,-0.2, -0.2,-0.2))){
+					return new Background(new BackgroundFill(getSkinnable().getBackground()!=null?getSkinnable().getBackground().getFills().get(0).getFill() : Color.TRANSPARENT, 
+							getSkinnable().backgroundProperty().get()!=null?getSkinnable().getBackground().getFills().get(0).getRadii() : defaultRadii,
+							Insets.EMPTY/*new Insets(0,0,-1.0,0)*/));
+				}else{
+					return new Background(new BackgroundFill(getSkinnable().getBackground()!=null?getSkinnable().getBackground().getFills().get(0).getFill() : Color.TRANSPARENT, 
+							getSkinnable().getBackground()!=null?getSkinnable().getBackground().getFills().get(0).getRadii() : defaultRadii,
+							Insets.EMPTY/*getSkinnable().backgroundProperty().get()!=null?getSkinnable().getBackground().getFills().get(0).getInsets() : Insets.EMPTY*/));	
+				}				
+			}catch(Exception e){
+				return getSkinnable().getBackground();
 			}
 		}, getSkinnable().backgroundProperty()));
 		
@@ -167,11 +192,21 @@ public class JFXButtonSkin extends ButtonSkin {
 	}
 
 	private boolean isJavaDefaultBackground(Background background){
-		return background.getFills().get(0).getFill().toString().equals("0xffffffba"); 
+		try{
+			return background.getFills().get(0).getFill().toString().equals("0xffffffba") 
+				|| background.getFills().get(0).getFill().toString().equals("0xffffffbf") 
+				|| background.getFills().get(0).getFill().toString().equals("0xffffffbd");	
+		}catch(Exception e){
+			return false;
+		}
 	}
 	
 	private boolean isJavaDefaultClickedBackground(Background background){
-		return background.getFills().get(0).getFill().toString().equals("0x039ed3ff"); 
+		try{
+			return background.getFills().get(0).getFill().toString().equals("0x039ed3ff");	
+		}catch(Exception e){
+			return false;
+		}
 	}
 	
 	private void updateButtonType(ButtonType type){

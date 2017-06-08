@@ -22,7 +22,6 @@ import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXRippler;
 import com.jfoenix.controls.JFXRippler.RipplerMask;
 import com.sun.javafx.scene.control.skin.RadioButtonSkin;
-
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -81,6 +80,14 @@ public class JFXRadioButtonSkin extends RadioButtonSkin {
 		container.getChildren().add(rippler);
 		AnchorPane.setRightAnchor(rippler, labelOffset);
 		updateChildren();
+		
+		// show focused state
+		control.focusedProperty().addListener((o,oldVal,newVal)->{
+			if(newVal){
+				if(!getSkinnable().isPressed()) rippler.showOverlay();
+			}else rippler.hideOverlay();
+		});
+		control.pressedProperty().addListener((o,oldVal,newVal)-> rippler.hideOverlay());
 		
 		registerChangeListener(control.selectedColorProperty(), "SELECTED_COLOR");
 		registerChangeListener(control.unSelectedColorProperty(), "UNSELECTED_COLOR");

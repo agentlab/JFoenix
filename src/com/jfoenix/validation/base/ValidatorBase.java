@@ -18,14 +18,12 @@
  */
 package com.jfoenix.validation.base;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.ReadOnlyBooleanWrapper;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
+import javafx.css.PseudoClass;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Control;
+import javafx.scene.control.Tooltip;
 
 /**
  * An abstract class that defines the basic validation functionalities for a certain control.
@@ -35,8 +33,15 @@ import javafx.scene.Parent;
  * @since   2016-03-09
  */
 public abstract class ValidatorBase extends Parent {
-	public static final String DEFAULT_ERROR_STYLE_CLASS = "error";
 
+	public static final String DEFAULT_ERROR_STYLE_CLASS = "error";
+	/**
+	 * this style class will be activated when a validation error occurs
+	 */
+	public static final PseudoClass PSEUDO_CLASS_ERROR = PseudoClass.getPseudoClass("error");
+	
+    private Tooltip tooltip = null;
+    
 	public ValidatorBase(){
 		parentProperty().addListener((o,oldVal,newVal)->parentChanged());
 	}
@@ -68,7 +73,7 @@ public abstract class ValidatorBase extends Parent {
 	}
 	
 	/**
-	 * will evalutate the validation condition once calling validate method
+	 * will evaluate the validation condition once calling validate method
 	 */
 	protected abstract void eval();
 
@@ -81,11 +86,33 @@ public abstract class ValidatorBase extends Parent {
 			/*
 			 * TODO
 			 * NOTE: NEED TO FIX adding error style class to text area 
-			 * is causing the caret to disapper
+			 * is causing the caret to disappear
 			 */
 			if (!control.getStyleClass().contains(errorStyleClass.get()))
 				control.getStyleClass().add(errorStyleClass.get());
+			
+			control.pseudoClassStateChanged(PSEUDO_CLASS_ERROR, true);
+			
+			if(control instanceof Control) {
+				Tooltip controlTooltip = ((Control) control).getTooltip();
+            	if(controlTooltip != null && !controlTooltip.getStyleClass().contains("error-tooltip")){
+            		tooltip = ((Control) control).getTooltip();                		
+            	}
+                Tooltip errorTooltip = new Tooltip();
+                errorTooltip.getStyleClass().add("error-tooltip");
+                errorTooltip.setText(getMessage());
+                ((Control) control).setTooltip(errorTooltip);
+            }
 		} else{
+            if(control instanceof Control) {
+            	Tooltip controlTooltip = ((Control) control).getTooltip();
+            	if((controlTooltip != null && controlTooltip.getStyleClass().contains("error-tooltip"))
+            	|| (controlTooltip == null && tooltip != null)){
+            		((Control) control).setTooltip(tooltip);
+            	}
+                tooltip = null;
+            }
+            control.pseudoClassStateChanged(PSEUDO_CLASS_ERROR, false);
 			control.getStyleClass().remove(errorStyleClass.get());
 		}
 	}
@@ -172,7 +199,7 @@ public abstract class ValidatorBase extends Parent {
 		}
 	};
 	public void setIcon(Node icon){
-		icon.getStyleClass().add("errorIcon");
+		icon.getStyleClass().add("error-icon");
 		this.icon.set(icon);
 	}
 	public Node getIcon(){

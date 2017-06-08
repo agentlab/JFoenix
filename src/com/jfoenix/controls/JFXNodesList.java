@@ -18,9 +18,6 @@
  */
 package com.jfoenix.controls;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import javafx.animation.Animation.Status;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -33,6 +30,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.Duration;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * list of nodes that are toggled On/Off by clicking on the 1st node
@@ -117,7 +117,7 @@ public class JFXNodesList extends VBox {
 		if(animateTimeline.getStatus().equals(Status.RUNNING)) animateTimeline.stop();
 		
 		animateTimeline.getKeyFrames().clear();
-		double duration = 120/this.getChildren().size();
+		double duration = 120/(double)this.getChildren().size();
 
 		// show child nodes 
 		if(expanded) this.getChildren().forEach(child->child.setVisible(true));

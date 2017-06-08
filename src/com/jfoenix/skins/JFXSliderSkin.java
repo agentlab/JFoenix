@@ -21,13 +21,13 @@ package com.jfoenix.skins;
 import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXSlider.IndicatorPosition;
 import com.sun.javafx.scene.control.skin.SliderSkin;
-
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
+import javafx.css.PseudoClass;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.input.MouseEvent;
@@ -71,13 +71,8 @@ public class JFXSliderSkin extends SliderSkin {
 	public JFXSliderSkin(JFXSlider slider) {
 		super(slider);
 
-		if(!getSkinnable().isShowTickMarks()){
-			track =  (StackPane) getChildren().get(0);
-			thumb =  (StackPane) getChildren().get(1);
-		}else{
-			track =  (StackPane) getChildren().get(1);
-			thumb =  (StackPane) getChildren().get(2);
-		}
+		track = (StackPane) getSkinnable().lookup(".track");
+		thumb = (StackPane) getSkinnable().lookup(".thumb");
 
 		track.setBackground(new Background(new BackgroundFill(trackColor, new CornerRadii(5), Insets.EMPTY)));
 		thumb.setBackground(new Background(new BackgroundFill(thumbColor, new CornerRadii(20), Insets.EMPTY)));		
@@ -262,8 +257,10 @@ public class JFXSliderSkin extends SliderSkin {
 			internalChange = true;
 			if(getSkinnable().getMin() == newVal.doubleValue()){
 				thumb.setBackground(new Background(new BackgroundFill(trackColor, new CornerRadii(20), Insets.EMPTY)));
+				animatedThumb.pseudoClassStateChanged(PseudoClass.getPseudoClass("min"),true);
 			}else if(oldVal.doubleValue() == getSkinnable().getMin()){
 				thumb.setBackground(new Background(new BackgroundFill(thumbColor, new CornerRadii(20), Insets.EMPTY)));
+				animatedThumb.pseudoClassStateChanged(PseudoClass.getPseudoClass("min"),false);
 			}
 			internalChange = false;
 		});

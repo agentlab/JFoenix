@@ -23,14 +23,9 @@ import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.behavior.JFXTreeTableCellBehavior;
 import com.sun.javafx.scene.control.behavior.TreeTableCellBehavior;
 import com.sun.javafx.scene.control.skin.TableCellSkinBase;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableRow;
-import javafx.scene.control.TreeTableView;
+import javafx.scene.control.*;
 
 /**
  * @author  Shadi Shaheen
@@ -90,7 +85,9 @@ public class JFXTreeTableCellSkin<S,T> extends TableCellSkinBase<TreeTableCell<S
 
 		if(tableColumn == treeColumn || ((JFXTreeTableColumn<S,T>)tableColumn).isGrouped()){
 			// add in the width of the disclosure node		
-			leftPadding += JFXTreeTableRowSkin.disclosureWidthMap.containsKey(treeTable) ? JFXTreeTableRowSkin.disclosureWidthMap.get(treeTable) : 0;
+			if (JFXTreeTableRowSkin.disclosureWidthMap != null && JFXTreeTableRowSkin.disclosureWidthMap.containsKey(treeTable)) {
+				leftPadding += JFXTreeTableRowSkin.disclosureWidthMap.get(treeTable);
+			}
 		}
 		// adding in the width of the graphic on the tree item
 		leftPadding += treeItem.getGraphic() == null ? 0 : treeItem.getGraphic().prefWidth(height);

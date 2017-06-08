@@ -18,43 +18,22 @@
  */
 package com.jfoenix.controls;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-
 import com.jfoenix.skins.JFXListViewSkin;
 import com.sun.javafx.css.converters.BooleanConverter;
 import com.sun.javafx.css.converters.SizeConverter;
-
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.css.CssMetaData;
-import javafx.css.SimpleStyleableBooleanProperty;
-import javafx.css.SimpleStyleableDoubleProperty;
-import javafx.css.Styleable;
-import javafx.css.StyleableBooleanProperty;
-import javafx.css.StyleableDoubleProperty;
+import javafx.css.*;
 import javafx.event.Event;
 import javafx.scene.Node;
-import javafx.scene.control.Control;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Skin;
+import javafx.scene.control.*;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
+
+import java.util.*;
 
 /**
  * Material design implementation of List View
@@ -70,8 +49,6 @@ public class JFXListView<T> extends ListView<T> {
 	 */
 	public JFXListView() {
 		super();
-		// bug : to prevent selection when focusing the list
-		this.setFocusTraversable(false);
 		this.setCellFactory(new Callback<ListView<T>, ListCell<T>>() {
 			@Override
 			public ListCell<T> call(ListView<T> listView) {
@@ -93,10 +70,10 @@ public class JFXListView<T> extends ListView<T> {
 	public ObjectProperty<Integer> depthProperty(){
 		return depthProperty;
 	}
-	public int getDepthProperty(){
+	public int getDepth(){
 		return depthProperty.get();
 	}
-	public void setDepthProperty(int depth){
+	public void setDepth(int depth){
 		depthProperty.set(depth);
 	}	
 
@@ -176,30 +153,30 @@ public class JFXListView<T> extends ListView<T> {
 		// if item from the list is selected
 		if(this.getSelectionModel().getSelectedIndex() != -1 ){
 			int selectedIndex = this.getSelectionModel().getSelectedIndex();
-			Iterator<Integer> itr = sublistsIndices.keySet().iterator();
+			Iterator<Map.Entry<Integer, JFXListView<?>>> itr = sublistsIndices.entrySet().iterator();
 			int preItemsSize = 0;
 			while(itr.hasNext()){
-				Integer key = itr.next();
-				if(key < selectedIndex) preItemsSize += sublistsIndices.get(key).getItems().size()-1;
+				Map.Entry<Integer, JFXListView<?>> entry = itr.next();
+				if(entry.getKey() < selectedIndex) preItemsSize += entry.getValue().getItems().size()-1;
 			}
 //			int preItemsSize = sublistsIndices.keySet().stream().filter(key-> key < selectedIndex).mapToInt(key->sublistsIndices.get(key).getItems().size()-1).sum();
 			overAllIndexProperty.set(selectedIndex + preItemsSize);
 		}else{
-			Iterator<Integer> itr = sublistsIndices.keySet().iterator();
+			Iterator<Map.Entry<Integer, JFXListView<?>>> itr = sublistsIndices.entrySet().iterator();
 			ArrayList<Object> selectedList = new ArrayList<>();
 			while(itr.hasNext()){
-				Integer key = itr.next();
-				if(sublistsIndices.get(key).getSelectionModel().getSelectedIndex() != -1){
-					selectedList.add(key);
+				Map.Entry<Integer, JFXListView<?>> entry = itr.next();
+				if(entry.getValue().getSelectionModel().getSelectedIndex() != -1){
+					selectedList.add(entry.getKey());
 				}
 			}
 			if(selectedList.size() > 0){
-				itr = sublistsIndices.keySet().iterator();
+				itr = sublistsIndices.entrySet().iterator();
 				int preItemsSize = 0;
 				while(itr.hasNext()){
-					Integer key = itr.next();
-					if(key < ((Integer)selectedList.get(0))){
-						preItemsSize += sublistsIndices.get(key).getItems().size()-1;
+					Map.Entry<Integer, JFXListView<?>> entry = itr.next();
+					if(entry.getKey() < ((Integer)selectedList.get(0))){
+						preItemsSize += entry.getValue().getItems().size()-1;
 					}
 				}
 				overAllIndexProperty.set(preItemsSize + (Integer)selectedList.get(0)+ sublistsIndices.get(selectedList.get(0)).getSelectionModel().getSelectedIndex());
@@ -340,7 +317,7 @@ public class JFXListView<T> extends ListView<T> {
 
 	private static class StyleableProperties {
 		private static final CssMetaData< JFXListView<?>, Number> CELL_HORIZONTAL_MARGIN =
-				new CssMetaData< JFXListView<?>, Number>("-fx-cell-horizontal-margin",
+				new CssMetaData< JFXListView<?>, Number>("-jfx-cell-horizontal-margin",
 						SizeConverter.getInstance(), 0) {
 			@Override
 			public boolean isSettable(JFXListView<?> control) {
@@ -352,7 +329,7 @@ public class JFXListView<T> extends ListView<T> {
 			}
 		};
 		private static final CssMetaData< JFXListView<?>, Number> CELL_VERTICAL_MARGIN =
-				new CssMetaData< JFXListView<?>, Number>("-fx-cell-vertical-margin",
+				new CssMetaData< JFXListView<?>, Number>("-jfx-cell-vertical-margin",
 						SizeConverter.getInstance(), 4) {
 			@Override
 			public boolean isSettable(JFXListView<?> control) {
@@ -364,7 +341,7 @@ public class JFXListView<T> extends ListView<T> {
 			}
 		};
 		private static final CssMetaData< JFXListView<?>, Number> VERTICAL_GAP =
-				new CssMetaData< JFXListView<?>, Number>("-fx-vertical-gap",
+				new CssMetaData< JFXListView<?>, Number>("-jfx-vertical-gap",
 						SizeConverter.getInstance(), 0) {
 			@Override
 			public boolean isSettable(JFXListView<?> control) {
@@ -376,7 +353,7 @@ public class JFXListView<T> extends ListView<T> {
 			}
 		};
 		private static final CssMetaData< JFXListView<?>, Boolean> EXPANDED =
-				new CssMetaData< JFXListView<?>, Boolean>("-fx-expanded",
+				new CssMetaData< JFXListView<?>, Boolean>("-jfx-expanded",
 						BooleanConverter.getInstance(), false) {
 			@Override
 			public boolean isSettable(JFXListView<?> control) {

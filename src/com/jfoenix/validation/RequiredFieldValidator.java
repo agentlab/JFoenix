@@ -18,13 +18,12 @@
  */
 package com.jfoenix.validation;
 
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.validation.base.ValidatorBase;
 import javafx.beans.DefaultProperty;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
-
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.validation.base.ValidatorBase;
 
 /**
  * An example of required field validtaion, that is applied on text input controls
@@ -57,7 +56,7 @@ public class RequiredFieldValidator extends ValidatorBase {
 	private void evalComboBoxField(){
 		JFXComboBox<?> comboField = (JFXComboBox<?>) srcControl.get();
 		boolean valid = comboField.getValue()!=null;
-		valid |= comboField.isEditable() && comboField.getJFXEditor().getText()!=null && !comboField.getJFXEditor().getText().isEmpty();
+		valid |= comboField.isEditable() && comboField.getEditor().getText()!=null && !comboField.getEditor().getText().isEmpty();
 		if (valid ) hasErrors.set(false);
 		else hasErrors.set(true);
 	}

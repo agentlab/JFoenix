@@ -18,10 +18,7 @@
  */
 package com.jfoenix.skins;
 
-import java.util.List;
-
 import com.jfoenix.controls.JFXButton;
-
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
@@ -41,20 +38,12 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
+
+import java.util.List;
 
 /**
  * @author Shadi Shaheen
@@ -257,9 +246,9 @@ class JFXColorPalette extends Region {
 
 	class ColorSquare extends StackPane {
 		Rectangle rectangle;
-		int index;
+//		int index;
 		boolean isEmpty;
-		boolean isCustom;
+//		boolean isCustom;
 
 		public ColorSquare() {
 			this(null, -1, false);
@@ -290,8 +279,8 @@ class JFXColorPalette extends Region {
 					}
 				});
 			}
-			this.index = index;
-			this.isCustom = isCustom;
+//			this.index = index;
+//			this.isCustom = isCustom;
 			rectangle = new Rectangle(SQUARE_SIZE, SQUARE_SIZE);
 			if (color == null) {
 				rectangle.setFill(Color.WHITE);

@@ -18,12 +18,11 @@
  */
 package com.jfoenix.controls;
 
+import com.jfoenix.effects.JFXDepthManager;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-
-import com.jfoenix.effects.JFXDepthManager;
 
 /**
  * JFXToolbar is the material design implementation of a tool bar. 
@@ -59,7 +58,7 @@ public class JFXToolbar extends BorderPane {
 	 **************************************************************************/
 	
 	public void setLeftItems(Node... nodes){
-		this.leftBox.getChildren().addAll(nodes);
+		this.leftBox.getChildren().setAll(nodes);
 	}
 	
 	public ObservableList<Node> getLeftItems(){
@@ -67,7 +66,7 @@ public class JFXToolbar extends BorderPane {
 	}
 	
 	public void setRightItems(Node... nodes){
-		this.rightBox.getChildren().addAll(nodes);
+		this.rightBox.getChildren().setAll(nodes);
 	}
 	
 	public ObservableList<Node> getRightItems(){

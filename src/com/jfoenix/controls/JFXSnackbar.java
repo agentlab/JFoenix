@@ -18,11 +18,7 @@
  */
 package com.jfoenix.controls;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.jfoenix.controls.JFXButton.ButtonType;
-
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -43,6 +39,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 
@@ -65,24 +64,26 @@ public class JFXSnackbar extends StackPane {
 	private Group popup;
 	private ChangeListener<? super Number> sizeListener;
 
-	private AtomicBoolean proccessingQueue = new AtomicBoolean(false);
+	private AtomicBoolean processingQueue = new AtomicBoolean(false);
 	private ConcurrentLinkedQueue<SnackbarEvent> eventQueue = new  ConcurrentLinkedQueue<SnackbarEvent> ();
 	private StackPane actionContainer;
 
+	Interpolator easeInterpolator = Interpolator.SPLINE(0.250, 0.100, 0.250, 1.000);
+	
 	public JFXSnackbar() {
 		this(null);
 	}
 
 	public JFXSnackbar(Pane snackbarContainer) {
 
-		BorderPane bpane = new BorderPane();
+		BorderPane bPane = new BorderPane();
 		toast = new Label();
 		toast.setMinWidth(Control.USE_PREF_SIZE);
 		toast.getStyleClass().add("jfx-snackbar-toast");
 		toast.setWrapText(true);
 		StackPane toastContainer = new StackPane(toast);
 		toastContainer.setPadding(new Insets(20));
-		bpane.setLeft(toastContainer);
+		bPane.setLeft(toastContainer);
 
 		action = new JFXButton();
 		action.setMinWidth(Control.USE_PREF_SIZE);
@@ -92,7 +93,7 @@ public class JFXSnackbar extends StackPane {
 		// actions will be added upon showing the snackbar if needed
 		actionContainer = new StackPane(action);
 		actionContainer.setPadding(new Insets(0,10,0,0));
-		bpane.setRight(actionContainer);
+		bPane.setRight(actionContainer);
 
 		toast.prefWidthProperty().bind(Bindings.createDoubleBinding(()->{
 			if(this.getPrefWidth() == -1) return this.getPrefWidth();
@@ -101,25 +102,19 @@ public class JFXSnackbar extends StackPane {
 		}, this.prefWidthProperty(), actionContainer.widthProperty(), actionContainer.visibleProperty()));
 
 		//bind the content's height and width from this snackbar allowing the content's dimensions to be set externally
-		//		bpane.prefHeightProperty().bind(this.prefHeightProperty());
-		bpane.prefWidthProperty().bind(this.prefWidthProperty());
-		//		bpane.setMinSize(Control.USE_PREF_SIZE, Control.USE_PREF_SIZE);
-		//		bpane.setMaxSize(Control.USE_PREF_SIZE, Control.USE_PREF_SIZE);
+		bPane.prefWidthProperty().bind(this.prefWidthProperty());
 
-		content = bpane;
+		content = bPane;
 
 		content.getStyleClass().add("jfx-snackbar-content");
 		//setting a shadow enlarges the snackbar height leaving a gap below it
 		//JFXDepthManager.setDepth(content, 4);		
 
-		//wrap the content in a group so that the content is managed in it's own container 
-		//but the group is unmanaged in the snackbarContainer so it does not affect any layout calculations
+		//wrap the content in a group so that the content is managed inside its own container
+		//but the group is not managed in the snackbarContainer so it does not affect any layout calculations
 		popup= new Group();		
 		popup.getChildren().add(content);
 		popup.setManaged(false);
-		//popup.applyCss();
-		//popup.layout();
-		//popup.requestLayout();
 		popup.setVisible(false);
 
 		sizeListener = (o, oldVal, newVal) ->{refreshPopup();};
@@ -159,10 +154,10 @@ public class JFXSnackbar extends StackPane {
 				throw new IllegalArgumentException("Snackbar Container already set");
 			}
 
-			this.snackbarContainer = snackbarContainer;	
+			this.snackbarContainer = snackbarContainer;
 			this.snackbarContainer.getChildren().add(popup);
 			this.snackbarContainer.heightProperty().addListener(sizeListener);
-			this.snackbarContainer.widthProperty().addListener(sizeListener);				
+			this.snackbarContainer.widthProperty().addListener(sizeListener);
 		}
 
 	}
@@ -176,18 +171,19 @@ public class JFXSnackbar extends StackPane {
 
 			this.snackbarContainer.getChildren().remove(popup);
 			this.snackbarContainer.heightProperty().removeListener(sizeListener);
-			this.snackbarContainer.widthProperty().removeListener(sizeListener);				
-			this.snackbarContainer = null;	
+			this.snackbarContainer.widthProperty().removeListener(sizeListener);
+			this.snackbarContainer = null;
 		}
 	}
 
 	public void show(String toastMessage, long timeout) {
 		this.show(toastMessage, null,timeout, null);
 	}
-
+	public void show(String message, String actionText, EventHandler<? super MouseEvent> actionHandler) {
+		this.show(message, actionText,-1, actionHandler);
+	}
 	public void show(String message, String actionText, long timeout, EventHandler<? super MouseEvent> actionHandler) {
 		toast.setText(message);
-
 		if (actionText != null && !actionText.isEmpty()) {
 			action.setVisible(true);
 			actionContainer.setVisible(true);
@@ -201,43 +197,97 @@ public class JFXSnackbar extends StackPane {
 			actionContainer.setManaged(false);
 			action.setVisible(false);
 		}
+		Timeline animation = getTimeline(timeout);
+		animation.play();
+	}
 
+
+	private Timeline getTimeline(long timeout) {
+		Timeline animation;
+		if(timeout <= 0){
+			animation =  new  Timeline(
+					new KeyFrame(
+							Duration.ZERO,
+							(e)->popup.toBack(),
+							new KeyValue(popup.visibleProperty(), false ,Interpolator.EASE_BOTH),
+							new KeyValue(popup.translateYProperty(), popup.getLayoutBounds().getHeight(), easeInterpolator),
+							new KeyValue(popup.opacityProperty(), 0 , easeInterpolator)
+					),
+					new KeyFrame(
+							Duration.millis(10),
+							(e)->popup.toFront(),
+							new KeyValue(popup.visibleProperty(), true ,Interpolator.EASE_BOTH)
+					),
+					new KeyFrame(Duration.millis(300),
+							new KeyValue(popup.opacityProperty(), 1 , easeInterpolator),
+							new KeyValue(popup.translateYProperty(), 0, easeInterpolator)
+					)
+			);
+			animation.setCycleCount(1);
+		}else {
+			animation = new Timeline(
+					new KeyFrame(
+							Duration.ZERO,
+							(e) -> popup.toBack(),
+							new KeyValue(popup.visibleProperty(), false, Interpolator.EASE_BOTH),
+							new KeyValue(popup.translateYProperty(), popup.getLayoutBounds().getHeight(), easeInterpolator),
+							new KeyValue(popup.opacityProperty(), 0, easeInterpolator)
+					),
+					new KeyFrame(
+							Duration.millis(10),
+							(e) -> popup.toFront(),
+							new KeyValue(popup.visibleProperty(), true, Interpolator.EASE_BOTH)
+					),
+					new KeyFrame(Duration.millis(300),
+							new KeyValue(popup.opacityProperty(), 1, easeInterpolator),
+							new KeyValue(popup.translateYProperty(), 0, easeInterpolator)
+					),
+					new KeyFrame(Duration.millis(timeout / 2))
+			);
+			animation.setAutoReverse(true);
+			animation.setCycleCount(2);
+			animation.setOnFinished((e) -> processSnackbars());
+		}
+		return animation;
+	}
+
+	public void close(){
 		Timeline animation =  new  Timeline(
 				new KeyFrame(
 						Duration.ZERO,  
-						(e)->popup.toBack(),
-						new KeyValue(popup.visibleProperty(), false ,Interpolator.EASE_BOTH),
-						new KeyValue(popup.translateYProperty(), popup.getLayoutBounds().getHeight(), Interpolator.EASE_BOTH)
-						//new KeyValue(popup.opacityProperty(), 0 ,Interpolator.EASE_BOTH)
+						(e)->popup.toFront(),
+						new KeyValue(popup.opacityProperty(), 1 , easeInterpolator),
+						new KeyValue(popup.translateYProperty(), 0, easeInterpolator)
 						),
 				new KeyFrame(
-						Duration.millis(10),
-						(e)->popup.toFront(),
+						Duration.millis(290),
 						new KeyValue(popup.visibleProperty(), true ,Interpolator.EASE_BOTH)
 						),
-				new KeyFrame(Duration.millis(350),
-						//new KeyValue(popup.opacityProperty(), 1 ,Interpolator.EASE_BOTH)//,
-						new KeyValue(popup.translateYProperty(), 0, Interpolator.EASE_BOTH)
-						),
-				new KeyFrame(Duration.millis(timeout/2))
+				new KeyFrame(Duration.millis(300),
+						(e)->popup.toBack(),
+						new KeyValue(popup.visibleProperty(), false ,Interpolator.EASE_BOTH),
+						new KeyValue(popup.translateYProperty(), popup.getLayoutBounds().getHeight(), easeInterpolator),
+						new KeyValue(popup.opacityProperty(), 0 , easeInterpolator)
+						)
 				);
-		animation.setAutoReverse(true);
-		animation.setCycleCount(2);
-
-
-		animation.setOnFinished((e)->{
-			SnackbarEvent qevent = eventQueue.poll();
-			if (qevent != null) {
-				show(qevent.getMessage(), qevent.getActionText(), qevent.getTimeout(), qevent.getActionHandler());
-			} else {
-				//The enqueue method and this listener should be executed sequentially on the FX Thread so there
-				//should not be a race condition
-				proccessingQueue.getAndSet(false);
-			}				
-		});
-
+		animation.setCycleCount(1);
+		animation.setOnFinished((e)-> processSnackbars());
 		animation.play();
 	}
+
+	private void processSnackbars() {
+		SnackbarEvent qevent = eventQueue.poll();
+		if (qevent != null) {
+			if(qevent.isPersistent()) show(qevent.getMessage(), qevent.getActionText(), qevent.getActionHandler());
+			else show(qevent.getMessage(), qevent.getActionText(), qevent.getTimeout(), qevent.getActionHandler());
+		} else {
+			//The enqueue method and this listener should be executed sequentially on the FX Thread so there
+			//should not be a race condition
+			processingQueue.getAndSet(false);
+		}
+	}
+
+	
 
 	public void refreshPopup(){
 		Bounds contentBound = popup.getLayoutBounds();		
@@ -250,11 +300,12 @@ public class JFXSnackbar extends StackPane {
 
 	public void enqueue(SnackbarEvent event) {
 		eventQueue.add(event);
-		if (proccessingQueue.compareAndSet(false, true)){
+		if (processingQueue.compareAndSet(false, true)){
 			Platform.runLater(() -> {
 				SnackbarEvent qevent = eventQueue.poll();
 				if (qevent != null) {
-					show(qevent.getMessage(), qevent.getActionText(), qevent.getTimeout(), qevent.getActionHandler());
+					if(qevent.isPersistent()) show(qevent.getMessage(), qevent.getActionText(), qevent.getActionHandler());
+					else show(qevent.getMessage(), qevent.getActionText(), qevent.getTimeout(), qevent.getActionHandler());
 				}
 			});
 		}
@@ -267,11 +318,10 @@ public class JFXSnackbar extends StackPane {
 
 	public static class SnackbarEvent extends Event {
 
-		private static final long serialVersionUID = 1L;
-
-		private final String message;		 
+		private final String message;
 		private final String actionText;
 		private final long timeout;
+		private final boolean persistent;
 		private final EventHandler<? super MouseEvent> actionHandler;
 
 
@@ -294,16 +344,17 @@ public class JFXSnackbar extends StackPane {
 		public static final EventType<SnackbarEvent> SNACKBAR = new EventType<>(Event.ANY, "SNACKBAR");
 
 		public SnackbarEvent(String message) {
-			this(message,null,3000,null);
+			this(message,null,3000, false,null);
 
 		}
 
-		public SnackbarEvent(String message,String actionText, long timeout, EventHandler<? super MouseEvent> actionHandler) {
+		public SnackbarEvent(String message, String actionText, long timeout, boolean persistent, EventHandler<? super MouseEvent> actionHandler) {
 			super(SNACKBAR);
 			this.message=message;
 			this.actionText=actionText;
 			this.timeout=timeout < 1 ? 3000:timeout;
 			this.actionHandler=actionHandler;
+			this.persistent = persistent;
 		}
 
 		@Override
@@ -311,6 +362,9 @@ public class JFXSnackbar extends StackPane {
 			return (EventType<? extends SnackbarEvent>) super.getEventType();
 		}
 
+		public boolean isPersistent() {
+			return persistent;
+		}
 	}
 }
 

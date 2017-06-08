@@ -18,11 +18,8 @@
  */
 package com.jfoenix.controls;
 
-import java.util.function.Predicate;
-
 import com.jfoenix.concurrency.JFXUtilities;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -33,6 +30,8 @@ import javafx.collections.transformation.FilteredList;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.util.Callback;
+
+import java.util.function.Predicate;
 
 /**
  * RecursiveTreeItem is used along with RecursiveTreeObject
@@ -70,7 +69,7 @@ public class RecursiveTreeItem<T extends RecursiveTreeObject<T>> extends TreeIte
 	/**
 	 * creates empty recursive tree item
 	 * 
-	 * @param func is the callback used to retrive the children of the current tree item
+	 * @param func is the callback used to retrieve the children of the current tree item
 	 */
 	public RecursiveTreeItem(Callback<RecursiveTreeObject<T>, ObservableList<T>> func) {
 		this(null, (Node) null, func);
@@ -80,18 +79,18 @@ public class RecursiveTreeItem<T extends RecursiveTreeObject<T>> extends TreeIte
 	 * creates recursive tree item for a specified value
 	 * 
 	 * @param value of the tree item
-	 * @param func is the callback used to retrive the children of the current tree item
+	 * @param func is the callback used to retrieve the children of the current tree item
 	 */
 	public RecursiveTreeItem(final T value, Callback<RecursiveTreeObject<T>, ObservableList<T>> func) {
 		this(value, (Node) null, func);
 	}
 
 	/**
-	 * creates recursive tree item for a specified value and a grpahic node
+	 * creates recursive tree item for a specified value and a graphic node
 	 * 
 	 * @param value of the tree item
-	 * @param graphic
-	 * @param func is the callback used to retrive the children of the current tree item
+	 * @param graphic node
+	 * @param func is the callback used to retrieve the children of the current tree item
 	 */
 	public RecursiveTreeItem(final T value, Node graphic, Callback<RecursiveTreeObject<T>, ObservableList<T>> func) {
 		super(value, graphic);
@@ -103,7 +102,7 @@ public class RecursiveTreeItem<T extends RecursiveTreeObject<T>> extends TreeIte
 	 * creates recursive tree item from a data list
 	 * 
 	 * @param dataList of values
-	 * @param func is the callback used to retrive the children of the current tree item
+	 * @param func is the callback used to retrieve the children of the current tree item
 	 */
 	public RecursiveTreeItem(ObservableList<T> dataList, Callback<RecursiveTreeObject<T>, ObservableList<T>> func) {
 		RecursiveTreeObject<T> root = new RecursiveTreeObject<>();

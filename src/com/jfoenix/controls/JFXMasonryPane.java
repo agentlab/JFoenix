@@ -18,24 +18,9 @@
  */
 package com.jfoenix.controls;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.jfoenix.transitions.CachedTransition;
-
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.ParallelTransition;
-import javafx.animation.Timeline;
-import javafx.animation.Transition;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.animation.*;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener.Change;
 import javafx.geometry.BoundingBox;
@@ -44,6 +29,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.util.Duration;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * A JFXMasonryPane implements asymmetrical grid layoutMode, it places the child nodes according to 
@@ -75,7 +64,7 @@ public class JFXMasonryPane extends Pane {
 	private ParallelTransition trans = new ParallelTransition();
 	private boolean valid = false;
 //	private GridPane root = new GridPane();
-	String[] colors = {"-fx-border-color:#EEEEEE", "-fx-border-color:RED;","-fx-border-color:BLUE; ","-fx-border-color:GREEN;", "-fx-border-color:PURPLE;"};
+//	String[] colors = {"-fx-border-color:#EEEEEE", "-fx-border-color:RED;","-fx-border-color:BLUE; ","-fx-border-color:GREEN;", "-fx-border-color:PURPLE;"};
 	private List<BoundingBox> oldBoxes;
 
 	/***************************************************************************
@@ -167,7 +156,7 @@ public class JFXMasonryPane extends Pane {
 						block.setPrefSize(blockWidth, blockHeight);
 						block.resizeRelocate(blockX, blockY , blockWidth, blockHeight);
 					}else{
-						if(i >= oldBoxes.size() || oldBoxes == null){
+						if(oldBoxes == null || i >= oldBoxes.size()){
 							// handle new children
 							block.setOpacity(0);
 							block.setLayoutX(blockX);
@@ -352,7 +341,7 @@ public class JFXMasonryPane extends Pane {
 	}
 	/**
 	 * sets the horizontal spacing in the grid
-	 * @param hSpacing horizontal spacing
+	 * @param spacing horizontal spacing
 	 */
 	public final void setHSpacing(final double spacing) {
 		this.hSpacingProperty().set(spacing);
@@ -375,7 +364,7 @@ public class JFXMasonryPane extends Pane {
 	}
 	/**
 	 * sets the vertical spacing in the grid
-	 * @param vSpacing vertical spacing
+	 * @param spacing vertical spacing
 	 */
 	public final void setVSpacing(final double spacing) {
 		this.vSpacingProperty().set(spacing);
